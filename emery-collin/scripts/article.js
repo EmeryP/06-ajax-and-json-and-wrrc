@@ -37,9 +37,9 @@ Article.prototype.toHtml = function() {
 // REVIEW: This function will take the rawData, how ever it is provided, and use it to instantiate all the articles. This code is moved from elsewhere, and encapsulated in a simply-named function for clarity.
 
 // COMMENT: Where is this function called? What does 'rawData' represent now? How is this different from previous labs?
-// In the fetchAll function directly below this function. The data in local storage or the data from the remote database we're tapping into. The difference is we are grabbing data from a local or remote storage versus a local file.  
-Article.loadAll = articleData => { //instantiating new function that does work on the article constructor 
-  articleData.sort((a,b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn))) //sorting article data based on publishedOn info 
+// In the fetchAll function directly below this function. The data in local storage or the data from the remote database we're tapping into. The difference is we are grabbing data from a local or remote storage versus a local file.
+Article.loadAll = articleData => { //instantiating new function that does work on the article constructor
+  articleData.sort((a,b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn))) //sorting article data based on publishedOn info
 
   articleData.forEach(articleObject => Article.all.push(new Article(articleObject))) //for each article data instance, push to article object
 }
@@ -48,13 +48,22 @@ Article.loadAll = articleData => { //instantiating new function that does work o
 Article.fetchAll = () => {
   // REVIEW: What is this 'if' statement checking for? Where was the rawData set to local storage?
   if (localStorage.rawData) {
-
-    Article.loadAll();
-
+    console.log('in local storage', JSON.parse(localStorage.rawData));
+    var myData = JSON.parse(localStorage.rawData)
+    Article.loadAll(myData);
+    console.log(Article.all)
+    articleView.initIndexPage();
   } else {
     $.getJSON('/data/hackerIpsum.json')
-      .then(data => Article.loadAll(data))
+      .then( function(data){
+        Article.loadAll(data);
+        console.log(data);
+        //     localStorage.rawData = JSON.stringify(data);
+        localStorage.setItem('rawData', JSON.stringify(data));
+        articleView.initIndexPage();
+      })
       .catch(err => console.error('error caught', err));
+    console.log('getting info from json');
 
   }
 }
